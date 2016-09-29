@@ -5,12 +5,14 @@ const path = require('path');
 const querystring = require('querystring');
 const url = require('url');
 
-var dirPath;
-const projectName;
+var ext;
+
+var files;
 
 var endings = {
-    '.css': 'stylesheet.css',
-    '.js': 'script.js'
+    'css': 'text/css',
+    'js': 'text/js',
+    'jpg': 'image/jpeg',
 }
 
 
@@ -22,53 +24,55 @@ var server = http.createServer(function(request, response) {
         throw(err);
     });
 
-//const projectName = url.slice(10);
+
+//    fs.stat(__dirname + url, function(err,stats) {
+//        if(err) {
+//            console.log(err);
+//            return;
+//        }
+
+//        if (stats.isDirectory() && url[url.length-1]!=="/") {
+//url=url+"/";
+//        }
+
+//    });
+
+
 
     if (method!=='GET') {
         throw('Please change the method to GET');
     }
 
-    var pathToFile = url;
+
+    fs.readdir(__dirname + url, function (err, data) {
+        if(err) {
+            console.log(err);
+            return;
+        }
+        var files = data;
+    });
+
 
     if (url.indexOf(".")===-1) {
-//        const dirPath = "projects" + pathToFile + "/";
-
-        fs.readdir(__dirname + url, function (err, data) {
-            if(err) {
-                console.log("No such dir");
-                return;
-            }
-            var files = data;
-            console.log(files);
-
-        });
-
 
         response.writeHead(200, {
             'Content-Type': 'text/html'
         });
 
         var readStream = fs.createReadStream(__dirname + url + "/" + "index.html");
-        console.log('inside indexOf' + __dirname + url)
         readStream.pipe(response);
     }
 
-//if ()
-//for (var i=0; i<files.length;i++) {
-//    if endings[path.extname(url)]
-//}
-
-if (path.extname(url)==='.css') {
-    console.log(url)
-    response.setHeader('Content-Type', 'text/css');
-    readStream = fs.createReadStream(__dirname + url);
-    readStream.pipe(response);
-//"/projects/hangman/" + "stylesheet.css"
-
-}
 
 
+    if (path.extname(url) && path.extname(url)!=='.ico' ) {
+        ext = path.extname(url).slice(1);
+        response.setHeader('Content-Type', endings[ext]);
+        readStream = fs.createReadStream(__dirname + url);
+        console.log(__dirname + url);
+        readStream.pipe(response);
 
+    }
 
 
 });
