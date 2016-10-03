@@ -2,41 +2,33 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const querystring = require('querystring');
 const url = require('url');
 
 var ext;
 
-var files;
 
 var endings = {
     'css': 'text/css',
     'js': 'text/js',
-    'jpg': 'image/jpeg',
-}
+    'jpg': 'image/jpeg'
+};
 
 
 var server = http.createServer(function(request, response) {
     var method = request.method;
     var url = request.url;
-    var headers = request.headers;
     request.on('error', function(err) {
         throw(err);
     });
 
-
-//    fs.stat(__dirname + url, function(err,stats) {
-//        if(err) {
-//            console.log(err);
-//            return;
-//        }
-
-//        if (stats.isDirectory() && url[url.length-1]!=="/") {
-//url=url+"/";
-//        }
-
-//    });
-
+    if(path.dirname(url)==='/') {
+        var page = require("./projectPage");
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'text/html');
+        response.write(page);
+        response.end();
+        return;
+    }
 
 
     if (method!=='GET') {
@@ -44,17 +36,7 @@ var server = http.createServer(function(request, response) {
     }
 
 
-    fs.readdir(__dirname + url, function (err, data) {
-        if(err) {
-            console.log(err);
-            return;
-        }
-        var files = data;
-    });
-
-
-    if (url.indexOf(".")===-1) {
-
+    if (path.dirname(url)==='/projects') {
         response.writeHead(200, {
             'Content-Type': 'text/html'
         });
